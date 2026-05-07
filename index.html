@@ -744,6 +744,13 @@ tr:last-child td{border-bottom:none}tr:hover td{background:var(--bg)}
 <div class="toast" id="toast"></div>
 
 <script>
+// Configuração Cloudflare
+var WORKER_URL = 'https://cadinho-api.ednaldobmeloo.workers.dev';
+var WORKER_SENHA = 'cadinho2025';
+var LOGIN_EMAIL = 'cadinhorodas@hotmail.com';
+var LOGIN_SENHA_ACESSO = '12121212';
+
+
 // ============================================================
 // DATA & STORAGE
 // ============================================================
@@ -756,13 +763,6 @@ const SK='imovgest_v3'; // chave legada para migração local→nuvem
 const _auth = firebase.auth();
 const _db   = firebase.firestore();
 const DOC_ID = 'dados_principais';
-
-// Cloudflare Worker
-const WORKER_URL = 'https://cadinho-api.ednaldobmeloo.workers.dev';
-const WORKER_SENHA = 'cadinho2025';
-// Credenciais de acesso
-const LOGIN_EMAIL = 'cadinhorodas@hotmail.com';
-const LOGIN_SENHA = '12121212';
 
 let _fbUser  = null;
 let _saving  = false;
@@ -2580,12 +2580,14 @@ async function fazerLogin(){
   const spin = document.getElementById('login-spinner');
   err.style.display='none'; btn.disabled=true; spin.style.display='block';
   try{
-    if(email.trim()!==LOGIN_EMAIL || senha!==LOGIN_SENHA){
+    if(email.trim()!==LOGIN_EMAIL || senha!==LOGIN_SENHA_ACESSO){
       err.textContent='E-mail ou senha incorretos.';
       err.style.display='block'; return;
     }
     await _carregarDoFirestore();
-    document.getElementById('login-screen').style.display='none';
+    var ls = document.getElementById('login-screen');
+    if(ls) ls.style.display='none';
+    document.body.style.overflow='auto';
     _startApp();
   }catch(e){
     err.textContent='Erro: '+e.message;
