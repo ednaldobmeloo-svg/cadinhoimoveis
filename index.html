@@ -7,52 +7,49 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{min-height:100vh;background:#0f1a14;display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',sans-serif}
-.login-box{background:#1a2a1f;border:1px solid #2d4a35;border-radius:16px;padding:48px 40px;width:380px;box-shadow:0 24px 64px rgba(0,0,0,.5)}
-.logo{text-align:center;margin-bottom:36px}
-.logo h1{font-size:26px;color:#e8f2ed;font-weight:600;letter-spacing:-.5px}
-.logo p{font-size:12px;color:#4a7a5a;margin-top:4px;letter-spacing:.08em;text-transform:uppercase}
-.fg{margin-bottom:16px}
-.fg label{display:block;font-size:11px;font-weight:600;color:#4a7a5a;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
-.fg input{width:100%;padding:11px 14px;background:#0f1a14;border:1px solid #2d4a35;border-radius:8px;color:#e8f2ed;font-size:14px;outline:none;transition:border-color .2s}
-.fg input:focus{border-color:#1a5c3a}
-.btn-login{width:100%;padding:12px;background:#1a5c3a;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .2s}
-.btn-login:hover{background:#2e7d52}
-.btn-login:disabled{background:#2d4a35;cursor:not-allowed}
-.error{background:#2a1010;border:1px solid #5a2020;color:#f87171;border-radius:8px;padding:10px 14px;font-size:12px;margin-top:12px;display:none;word-break:break-word}
-.spinner{display:none;text-align:center;margin-top:12px;color:#4a7a5a;font-size:13px}
+.b{background:#1a2a1f;border:1px solid #2d4a35;border-radius:16px;padding:48px 40px;width:380px;box-shadow:0 24px 64px rgba(0,0,0,.5)}
+.logo{text-align:center;margin-bottom:32px}
+.logo h1{font-size:26px;color:#e8f2ed;font-weight:600}
+.logo p{font-size:11px;color:#4a7a5a;margin-top:4px;letter-spacing:.08em;text-transform:uppercase}
+label{display:block;font-size:11px;font-weight:600;color:#4a7a5a;margin-bottom:6px;text-transform:uppercase}
+input{width:100%;padding:11px 14px;background:#0f1a14;border:1px solid #2d4a35;border-radius:8px;color:#e8f2ed;font-size:14px;outline:none;margin-bottom:12px;box-sizing:border-box}
+.btn{width:100%;padding:12px;background:#1a5c3a;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+.err{color:#f87171;font-size:12px;margin-top:10px;display:none}
+.sp{display:none;text-align:center;margin-top:10px;color:#4a7a5a;font-size:13px}
 </style>
 </head>
 <body>
-<div class="login-box" id="login-box">
-  <div class="logo"><h1>Cadinho Imóveis</h1><p>Gestão de Imóveis</p></div>
-  <div class="fg"><label>Senha</label><input type="password" id="senha" placeholder="••••••••" autocomplete="current-password"></div>
-  <button class="btn-login" id="btn-login" onclick="fazerLogin()">Entrar</button>
-  <div class="error" id="erro"></div>
-  <div class="spinner" id="spinner">Carregando sistema...</div>
+<div class="b" id="login-box">
+<div class="logo"><h1>Cadinho Imóveis</h1><p>Gestão de Imóveis</p></div>
+<label>Senha</label>
+<input type="password" id="senha" placeholder="••••••••">
+<button class="btn" id="btn" onclick="fazerLogin()">Entrar</button>
+<div class="err" id="erro"></div>
+<div class="sp" id="sp">Carregando...</div>
 </div>
 <script>
-const WORKER_URL='https://cadinho-api.ednaldobmeloo.workers.dev';
-document.getElementById('senha').addEventListener('keydown',function(e){if(e.key==='Enter')fazerLogin();});
+const W='https://cadinho-api.ednaldobmeloo.workers.dev';
+document.getElementById('senha').onkeydown=e=>{if(e.key==='Enter')fazerLogin()};
 async function fazerLogin(){
-  const senha=document.getElementById('senha').value.trim();if(!senha)return;
-  const btn=document.getElementById('btn-login'),erro=document.getElementById('erro'),spinner=document.getElementById('spinner');
-  btn.disabled=true;erro.style.display='none';spinner.style.display='block';spinner.textContent='Autenticando...';
+  const s=document.getElementById('senha').value.trim();
+  if(!s)return;
+  const btn=document.getElementById('btn'),err=document.getElementById('erro'),sp=document.getElementById('sp');
+  btn.disabled=true;err.style.display='none';sp.style.display='block';
   try{
-    const res=await fetch(WORKER_URL,{method:'GET',headers:{'X-Auth':senha}});
-    if(res.status===401){erro.style.display='block';erro.textContent='Senha incorreta.';return;}
-    if(!res.ok)throw new Error('Erro: '+res.status);
-    const data=await res.json();
-    sessionStorage.setItem('cadinho_auth',senha);
-    sessionStorage.setItem('cadinho_worker',WORKER_URL);
-    sessionStorage.setItem('cadinho_data',JSON.stringify(data||{}));
-    spinner.textContent='Carregando sistema...';
-    const s=document.createElement('script');
-    s.src='app.js?v='+Date.now();
-    s.onerror=function(){erro.style.display='block';erro.textContent='Erro ao carregar app.js.';spinner.style.display='none';btn.disabled=false;};
-    s.onload=function(){document.getElementById('login-box').style.display='none';spinner.style.display='none';};
-    document.head.appendChild(s);
-  }catch(e){erro.style.display='block';erro.textContent='Erro: '+e.message;}
-  finally{btn.disabled=false;spinner.style.display='none';}
+    const r=await fetch(W,{headers:{'X-Auth':s}});
+    if(r.status===401){err.textContent='Senha incorreta.';err.style.display='block';return;}
+    if(!r.ok)throw new Error('Erro '+r.status);
+    const d=await r.json();
+    sessionStorage.setItem('cadinho_auth',s);
+    sessionStorage.setItem('cadinho_worker',W);
+    sessionStorage.setItem('cadinho_data',JSON.stringify(d||{}));
+    const sc=document.createElement('script');
+    sc.src='app.js?v='+Date.now();
+    sc.onerror=()=>{err.textContent='Erro ao carregar app.js';err.style.display='block';btn.disabled=false;};
+    sc.onload=()=>{document.getElementById('login-box').style.display='none';sp.style.display='none';};
+    document.head.appendChild(sc);
+  }catch(e){err.textContent='Erro: '+e.message;err.style.display='block';}
+  finally{btn.disabled=false;sp.style.display='none';}
 }
 </script>
 </body>
