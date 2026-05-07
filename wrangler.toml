@@ -1,0 +1,7 @@
+name = "cadinho-api"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "CADINHO_KV"
+id = "d6155318e5834caabd18af917ecf5f48"
