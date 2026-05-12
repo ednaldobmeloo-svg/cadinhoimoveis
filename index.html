@@ -648,7 +648,7 @@ const WORKER_PASS='12121212';
 
 async function loadData(){
   try{
-    const res=await fetch(WORKER_URL+'/data',{headers:{'x-auth':WORKER_PASS}});
+    const res=await fetch(WORKER_URL+'/data?pass='+WORKER_PASS);
     if(!res.ok) throw new Error('falha');
     const d=await res.json();
     if(!d||typeof d!=='object') throw new Error('vazio');
@@ -661,7 +661,7 @@ async function loadData(){
 }
 async function persist(){
   try{
-    await fetch(WORKER_URL+'/data',{method:'POST',headers:{'Content-Type':'application/json','x-auth':WORKER_PASS},body:JSON.stringify(DB)});
+    await fetch(WORKER_URL+'/data?pass='+WORKER_PASS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(DB)});
   }catch(e){console.error('Erro ao salvar no KV:',e);}
 }
 
