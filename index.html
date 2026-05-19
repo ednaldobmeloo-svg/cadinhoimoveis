@@ -1008,10 +1008,26 @@ async function loadData(){
     return d;
   }catch(e){return buildDefault();}
 }
+// Debounce: agrupa múltiplas chamadas e salva apenas 1x a cada 3s
+let _persistTimer=null;
+let _persistPending=false;
 async function persist(){
-  try{
-    await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(DB)});
-  }catch(e){console.error('Erro ao salvar:',e);}
+  _persistPending=true;
+  if(_persistTimer) return; // já tem um save agendado
+  _persistTimer=setTimeout(async()=>{
+    _persistTimer=null;
+    if(!_persistPending) return;
+    _persistPending=false;
+    try{
+      const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(DB)});
+      if(!res.ok){
+        const err=await res.json().catch(()=>({error:res.status}));
+        if(err.error&&err.error.includes('Limit exceeded')){
+          showToast('⚠️ Limite diário de saves atingido. Dados serão salvos amanhã.');
+        }
+      }
+    }catch(e){console.error('Erro ao salvar:',e);}
+  },3000);
 }
 
 function novasUnidadesPatrimonio(){
